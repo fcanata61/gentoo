@@ -1,0 +1,172 @@
+============================================================
+Guia Completo do Diretório /etc/portage no Gentoo Linux
+============================================================
+
+Introdução
+----------
+O diretório /etc/portage é onde ficam as configurações principais do sistema
+de gerenciamento de pacotes do Gentoo, o Portage.  
+Aqui você controla USE flags, pacotes mascarados, overlays, repositórios e
+políticas de atualização.
+
+Cada arquivo ou subdiretório dentro de /etc/portage tem um propósito específico.
+Este guia explica todos eles e dá exemplos práticos de uso.
+
+------------------------------------------------------------
+1. make.conf
+------------------------------------------------------------
+Arquivo principal de configuração do Portage.
+
+Exemplo:
+    COMMON_FLAGS="-march=native -O2 -pipe"
+    MAKEOPTS="-j4"
+    USE="X alsa pulseaudio wifi bluetooth"
+    LINGUAS="en pt_BR"
+    ACCEPT_LICENSE="*"
+
+- COMMON_FLAGS: opções de compilação padrão para C/C++.
+- MAKEOPTS: controla quantos jobs paralelos serão usados na compilação.
+- USE: habilita ou desabilita recursos opcionais de pacotes.
+- LINGUAS: define idiomas do sistema.
+- ACCEPT_LICENSE: quais licenças são aceitas.
+
+------------------------------------------------------------
+2. package.use
+------------------------------------------------------------
+Permite definir USE flags específicas por pacote.
+
+Pode ser arquivo único ou diretório com vários arquivos.
+
+Exemplo:
+    # /etc/portage/package.use
+    media-video/ffmpeg X aac mp3
+    www-client/firefox pulseaudio dbus
+    net-misc/networkmanager wifi bluetooth
+
+------------------------------------------------------------
+3. package.mask
+------------------------------------------------------------
+Lista de pacotes que NÃO devem ser instalados ou atualizados.
+
+Exemplo:
+    # Bloquear versão instável
+    >=sys-kernel/gentoo-sources-6.10
+
+------------------------------------------------------------
+4. package.unmask
+------------------------------------------------------------
+Permite liberar pacotes que estão mascarados globalmente.
+
+Exemplo:
+    =sys-kernel/gentoo-sources-6.12.0
+
+------------------------------------------------------------
+5. package.accept_keywords
+------------------------------------------------------------
+Usado para aceitar pacotes de branchs instáveis (~amd64, ~x86).
+
+Exemplo:
+    # Aceitar firefox versão testing
+    www-client/firefox ~amd64
+
+------------------------------------------------------------
+6. package.env
+------------------------------------------------------------
+Permite aplicar variáveis de ambiente específicas por pacote.
+
+Exemplo:
+    # /etc/portage/package.env
+    sys-devel/gcc custom-opts.conf
+
+    # E em /etc/portage/env/custom-opts.conf
+    CFLAGS="-O3 -march=native"
+
+------------------------------------------------------------
+7. repos.conf
+------------------------------------------------------------
+Configura os repositórios de ebuilds.
+
+Exemplo:
+    # /etc/portage/repos.conf/gentoo.conf
+    [gentoo]
+    location = /var/db/repos/gentoo
+    sync-type = rsync
+    sync-uri = rsync://rsync.gentoo.org/gentoo-portage
+    auto-sync = yes
+
+------------------------------------------------------------
+8. savedconfig
+------------------------------------------------------------
+Permite salvar e aplicar configurações customizadas de pacotes.
+
+Exemplo:
+    # /etc/portage/savedconfig/sys-kernel/linux-firmware
+    (aqui ficam apenas os firmwares que você realmente quer instalar)
+
+------------------------------------------------------------
+9. bashrc
+------------------------------------------------------------
+Arquivo opcional que permite rodar scripts durante compilação.
+
+Exemplo:
+    # /etc/portage/bashrc
+    post_src_install() {
+        echo "Pacote $CATEGORY/$PF instalado com sucesso!"
+    }
+
+------------------------------------------------------------
+10. profile
+------------------------------------------------------------
+Link simbólico para o perfil do sistema.  
+Define conjunto padrão de USE flags, pacotes básicos e comportamento do Portage.
+
+Exemplo:
+    /etc/portage/make.profile -> /var/db/repos/gentoo/profiles/default/linux/amd64/17.1/desktop
+
+------------------------------------------------------------
+11. package.license
+------------------------------------------------------------
+Define licenças aceitas por pacote.
+
+Exemplo:
+    www-client/google-chrome google-chrome
+    media-video/ffmpeg *   # aceita todas as licenças para o ffmpeg
+
+------------------------------------------------------------
+12. package.provided
+------------------------------------------------------------
+Informa ao Portage que um pacote já está instalado (útil em casos raros).
+
+Exemplo:
+    sys-libs/glibc-2.39
+
+------------------------------------------------------------
+13. env/
+------------------------------------------------------------
+Diretório para armazenar arquivos de variáveis de ambiente customizadas,
+usadas junto com package.env.
+
+------------------------------------------------------------
+14. postsync.d/
+------------------------------------------------------------
+Scripts que rodam após sincronização do Portage (emerge --sync).
+
+------------------------------------------------------------
+Resumo Final
+------------------------------------------------------------
+- /etc/portage/make.conf → Configuração global do Portage
+- /etc/portage/package.use → USE flags por pacote
+- /etc/portage/package.mask → Bloquear pacotes
+- /etc/portage/package.unmask → Liberar pacotes mascarados
+- /etc/portage/package.accept_keywords → Aceitar pacotes instáveis
+- /etc/portage/package.env + env/ → Variáveis por pacote
+- /etc/portage/repos.conf → Repositórios
+- /etc/portage/savedconfig → Configuração salva de pacotes
+- /etc/portage/bashrc → Scripts customizados
+- /etc/portage/profile → Perfil do sistema
+- /etc/portage/package.license → Licenças aceitas
+- /etc/portage/package.provided → Pacotes "já providos"
+- /etc/portage/postsync.d/ → Scripts pós-sync
+
+Este guia cobre tudo que você precisa saber para dominar a
+configuração do Portage no Gentoo.
