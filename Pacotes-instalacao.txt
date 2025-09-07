@@ -1,0 +1,59 @@
+Gentoo Desktop com Window Manager - Passos de Instalação
+============================================================
+
+# 1. Pacotes essenciais
+emerge --ask --verbose \
+    sys-kernel/gentoo-sources \
+    sys-kernel/genkernel \
+    sys-kernel/linux-firmware \
+    sys-boot/grub
+
+# 2. Sistema gráfico
+emerge --ask --verbose \
+    x11-base/xorg-server \
+    x11-drivers/xf86-video-amdgpu \
+    x11-drivers/xf86-video-intel \
+    x11-drivers/xf86-video-nouveau \
+    x11-drivers/nvidia-drivers \
+    media-libs/mesa
+
+# (Escolha apenas o driver da sua GPU: amdgpu, intel, nouveau ou nvidia-drivers)
+
+# Para Wayland (ex.: sway)
+emerge --ask --verbose gui-libs/wlroots dev-libs/wayland-protocols
+
+# 3. Áudio
+# Opção A: PulseAudio
+emerge --ask --verbose media-sound/pulseaudio pavucontrol
+
+# Opção B: PipeWire (alternativa moderna)
+emerge --ask --verbose media-video/pipewire media-video/wireplumber
+
+# 4. Rede
+emerge --ask --verbose net-misc/networkmanager
+
+# 5. Fontes e temas
+emerge --ask --verbose \
+    media-fonts/dejavu \
+    media-fonts/noto \
+    x11-themes/adwaita-icon-theme
+
+# 6. Utilitários básicos
+emerge --ask --verbose \
+    app-editors/nano \
+    app-admin/sudo \
+    app-arch/unzip \
+    app-arch/p7zip \
+    net-misc/openssh
+
+# 7. Window Manager (escolha um)
+emerge --ask --verbose x11-wm/i3-gaps
+emerge --ask --verbose x11-wm/openbox
+emerge --ask --verbose x11-wm/sway
+emerge --ask --verbose x11-wm/bspwm
+emerge --ask --verbose x11-wm/awesome
+
+# 8. Display Manager (opcional, para login gráfico)
+emerge --ask --verbose x11-misc/lightdm lightdm-gtk-greeter
+
+# Se não quiser Display Manager, basta logar pelo TTY e usar: startx
