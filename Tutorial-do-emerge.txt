@@ -1,0 +1,244 @@
+============================================================
+Guia Completo de Comandos Gentoo - Portage, Eselect, Gentoolkit e Euse
+============================================================
+
+Este guia reúne os principais comandos do Gentoo Linux, explicados com exemplos,
+incluindo gerenciamento de pacotes, USE flags, perfis, serviços e ferramentas de manutenção.
+
+------------------------------------------------------------
+1. Sincronização e atualização do sistema
+------------------------------------------------------------
+
+# Atualiza a árvore de ebuilds
+emerge --sync
+
+# Alternativa usando git
+emaint sync -a
+
+# Atualiza todos os pacotes do sistema
+emerge --update --deep --newuse @world
+
+# Limpa pacotes antigos e dependências órfãs
+emerge --depclean
+
+# Reconstrói dependências quebradas
+revdep-rebuild
+
+------------------------------------------------------------
+2. Instalação, remoção e pesquisa de pacotes
+------------------------------------------------------------
+
+# Instalar pacote
+emerge --ask app-editors/nano
+
+# Remover pacote
+emerge --ask --depclean app-editors/nano
+
+# Pesquisar pacotes
+emerge --search firefox
+emerge --searchdesc audio
+
+# Mostrar dependências de um pacote
+emerge --pretend --tree www-client/firefox
+
+------------------------------------------------------------
+3. USE Flags
+------------------------------------------------------------
+
+# USE global no make.conf
+USE="X alsa pulseaudio wifi bluetooth"
+
+# Adicionar USE flag global
+USE="${USE} gtk3"
+
+# Remover USE flag global
+USE="${USE//pulseaudio/}"
+
+# USE específico por pacote
+echo "www-client/firefox gtk3 -pulseaudio" >> /etc/portage/package.use
+
+# Atualizar após alterações
+emerge --update --deep --newuse @world
+
+------------------------------------------------------------
+4. Euse (Gentoolkit) - Gerenciamento de USE Flags Globais
+------------------------------------------------------------
+
+# Listar todas as USE flags do sistema
+euse -a
+
+# Listar USE flags globais no make.conf
+euse -g
+
+# Verificar status e descrição de uma USE flag
+euse -i X
+
+# Ativar USE flag global no make.conf
+euse -E pulseaudio
+
+# Desativar USE flag global no make.conf
+euse -D pulseaudio
+
+# Ativar múltiplas flags
+euse -E alsa pulseaudio bluetooth
+
+# Desativar múltiplas flags
+euse -D gnome kde
+
+------------------------------------------------------------
+5. Máscaras e Keywords
+------------------------------------------------------------
+
+# Bloquear pacote
+echo ">=sys-kernel/gentoo-sources-6.10" >> /etc/portage/package.mask
+
+# Liberar pacote mascarado
+echo "=sys-kernel/gentoo-sources-6.12.0" >> /etc/portage/package.unmask
+
+# Aceitar versão instável (~amd64)
+echo "www-client/firefox ~amd64" >> /etc/portage/package.accept_keywords
+
+------------------------------------------------------------
+6. Kernel
+------------------------------------------------------------
+
+# Instalar fontes do kernel
+emerge --ask sys-kernel/gentoo-sources
+
+# Compilar kernel manual
+cd /usr/src/linux
+make menuconfig
+make && make modules_install
+cp arch/x86/boot/bzImage /boot/kernel-custom
+
+# Compilar kernel automático
+emerge --ask sys-kernel/genkernel
+genkernel all
+
+------------------------------------------------------------
+7. Bootloader
+------------------------------------------------------------
+
+# Instalar GRUB
+emerge --ask sys-boot/grub
+
+# Instalar em BIOS
+grub-install /dev/sda
+
+# Instalar em UEFI
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=Gentoo
+
+# Gerar configuração
+grub-mkconfig -o /boot/grub/grub.cfg
+
+------------------------------------------------------------
+8. Eselect
+------------------------------------------------------------
+
+# Listar perfis do sistema
+eselect profile list
+
+# Selecionar perfil
+eselect profile set 5
+
+# Listar e selecionar versão do GCC
+eselect gcc list
+eselect gcc set 1
+
+# Listar e selecionar versão do Python
+eselect python list
+eselect python set python3.12
+
+# Listar e selecionar versão de OpenGL
+eselect opengl list
+eselect opengl set mesa
+
+# Listar e selecionar versão de kernel sources
+eselect kernel list
+eselect kernel set 1
+
+# Listar e selecionar editor padrão
+eselect editor list
+eselect editor set nano
+
+# Listar e selecionar Java VM
+eselect java-vm list
+eselect java-vm set 2
+
+------------------------------------------------------------
+9. Gentoolkit
+------------------------------------------------------------
+
+# Mostrar qual pacote instalou determinado arquivo
+qfile /usr/bin/firefox
+
+# Mostrar dependências de um pacote instalado
+qdepends www-client/firefox
+
+# Mostrar pacotes que dependem de um pacote
+qrevdep sys-libs/glibc
+
+# Informações detalhadas sobre pacotes
+equery list www-client/firefox
+equery depends www-client/firefox
+equery files www-client/firefox
+
+# Mostrar USE flags habilitadas/desabilitadas em um pacote
+equery u www-client/firefox
+
+# Verificar pacotes bloqueados ou mascarados
+equery l www-client/firefox
+
+------------------------------------------------------------
+10. Serviços (OpenRC)
+------------------------------------------------------------
+
+# Adicionar serviço na inicialização
+rc-update add NetworkManager default
+
+# Remover serviço da inicialização
+rc-update del NetworkManager default
+
+# Iniciar serviço manualmente
+rc-service NetworkManager start
+
+# Parar serviço
+rc-service NetworkManager stop
+
+# Verificar status
+rc-service NetworkManager status
+
+------------------------------------------------------------
+11. Limpeza e manutenção
+------------------------------------------------------------
+
+# Remover dependências órfãs
+emerge --depclean
+
+# Reconstruir pacotes quebrados
+revdep-rebuild
+
+# Limpar cache de pacotes baixados
+eclean distfiles
+
+# Limpar binários antigos
+eclean packages
+
+------------------------------------------------------------
+Resumo de Fluxo de Manutenção
+------------------------------------------------------------
+
+1. Sincronizar árvore:
+   emerge --sync
+
+2. Atualizar sistema:
+   emerge --update --deep --newuse @world
+
+3. Remover pacotes antigos:
+   emerge --depclean
+
+4. Corrigir dependências quebradas:
+   revdep-rebuild
+
+5. Limpar cache:
+   eclean distfiles && eclean packages
